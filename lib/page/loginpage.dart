@@ -3,6 +3,8 @@ import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:lab09_005/page/showbooks.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -15,6 +17,8 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  
+  get data => null;
   
   @override
   void dispose() {
@@ -40,6 +44,31 @@ class _LoginPageState extends State<LoginPage> {
           headers: {HttpHeaders.contentTypeHeader: 'application/json'},
         );
         if (response.statusCode == 200) {
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+
+          // เก็บค่า share preference
+          var payload = jsonDecode(response.body)['payload'];
+          var accessToken=jsonDecode(response.body)['accessToken'];
+          var refreshToken=jsonDecode(response.body)['refreshToken'];
+          await prefs.setInt('id', payload['userId']);
+          await prefs.setString('user',payload['username']);
+          await prefs.setString('role',payload['role']);
+          await prefs.setString('accessToken',accessToken);
+          await prefs.setString('refreshToken',refreshToken);
+
+
+          // เปิดไปหน้า show book
+          Navigator.push(
+         context,
+          MaterialPageRoute(
+           builder: (context) => Showbooks(
+           payload: payload,        
+           accessToken: accessToken, 
+           refreshToken: refreshToken, 
+      ),
+    ),
+  );
+          
           debugPrint("Success: ${response.body}");
         } else {
           debugPrint("Failed: ${response.statusCode}");
