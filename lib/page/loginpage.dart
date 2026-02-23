@@ -29,6 +29,9 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _login() async {
     if (_formKey.currentState!.validate()) {
+      debugPrint("Username: ${_usernameController.text}");
+      debugPrint("Password: ${_passwordController.text}");
+
       var json = jsonEncode({
         "username": _usernameController.text,
         "password": _passwordController.text,
